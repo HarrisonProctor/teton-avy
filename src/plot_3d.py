@@ -43,7 +43,7 @@ def plot_3d(ax, X, y, title):
     ax.set_xlabel("Morning Temp (°F)", fontsize=9)
     ax.set_ylabel("3-Day Snowfall (in)", fontsize=9)
     ax.set_zlabel("Wind Speed (mph)", fontsize=9)
-    ax.set_title(title, fontsize=11, fontweight="bold")
+
     ax.view_init(elev=25, azim=135)
     ax.invert_xaxis()
     ax.invert_yaxis()
@@ -77,7 +77,7 @@ for bar, val in zip(bars, [importances[i] for i in idx]):
     ax4.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01,
              f"{val*100:.1f}%", ha="center", fontsize=11, fontweight="bold")
 ax4.set_ylabel("Importance")
-ax4.set_title("Random Forest Feature Importances", fontsize=13, fontweight="bold")
+
 ax4.set_ylim(0, max(importances) + 0.08)
 ax4.grid(True, axis="y", alpha=0.3)
 fig4.tight_layout()
