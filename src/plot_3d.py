@@ -48,6 +48,7 @@ def plot_3d(ax, X, y, title):
     ax.invert_xaxis()
     ax.invert_yaxis()
     ax.legend(fontsize=8, loc="upper left")
+    ax.set_title(title, fontsize=12, pad=10)
 
 fig1 = plt.figure(figsize=(8, 6))
 ax1 = fig1.add_subplot(111, projection="3d")
