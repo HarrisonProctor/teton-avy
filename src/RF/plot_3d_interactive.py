@@ -6,7 +6,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
 script_dir = Path(__file__).parent.resolve()
-splits_dir = script_dir / ".." / "data" / "splits"
+splits_dir = script_dir / ".." / ".." / "data" / "splits"
 
 X_train = pd.read_csv(splits_dir / "X_train.csv")
 X_test = pd.read_csv(splits_dir / "X_test.csv")
@@ -43,7 +43,7 @@ def plot_3d(ax, X, y, title):
 
 datasets = [
     (y_test, "Actual Hazard Ratings"),
-    (rf_preds, "Random Forest Predictions"),
+    (rf_preds, "Random Forest (RF) Predictions"),
     (lr_preds, "Logistic Regression Predictions"),
 ]
 

@@ -7,8 +7,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
 script_dir = Path(__file__).parent.resolve()
-splits_dir = script_dir / ".." / "data" / "splits"
-output_dir = script_dir / ".." / "figures"
+splits_dir = script_dir / ".." / ".." / "data" / "splits"
+output_dir = script_dir / ".." / ".." / "figures"
 output_dir.mkdir(exist_ok=True)
 
 X_train = pd.read_csv(splits_dir / "X_train.csv")
@@ -58,7 +58,7 @@ fig1.savefig(output_dir / "actual_hazard_3d.png", dpi=200)
 
 fig2 = plt.figure(figsize=(8, 6))
 ax2 = fig2.add_subplot(111, projection="3d")
-plot_3d(ax2, X_test, rf_preds, "Random Forest Predictions (Test Data)")
+plot_3d(ax2, X_test, rf_preds, "Random Forest (RF) Predictions (Test Data)")
 fig2.tight_layout()
 fig2.savefig(output_dir / "rf_predictions_3d.png", dpi=200)
 
