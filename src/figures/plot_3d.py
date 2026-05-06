@@ -64,7 +64,7 @@ fig2.savefig(output_dir / "rf_predictions_3d.png", dpi=200)
 
 fig3 = plt.figure(figsize=(8, 6))
 ax3 = fig3.add_subplot(111, projection="3d")
-plot_3d(ax3, X_test, lr_preds, "Logistic Regression Predictions (Test Data)")
+plot_3d(ax3, X_test, lr_preds, "")
 fig3.tight_layout()
 fig3.savefig(output_dir / "lr_predictions_3d.png", dpi=200)
 
