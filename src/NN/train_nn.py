@@ -10,13 +10,13 @@ SCRIPT_DIR = Path(__file__).parent.resolve()
 SPLITS_DIR = SCRIPT_DIR / ".." / ".." / "data" / "splits"
 
 class AvalancheNN(nn.Module):
-    def __init__(self, input_size=3, hidden_size=16, num_classes=3):
+    def __init__(self, input_size=3, hidden_size=64, num_classes=3):
         super(AvalancheNN, self).__init__()
         self.fc1 = nn.Linear(input_size, hidden_size)
         self.relu1 = nn.ReLU()
-        self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, hidden_size // 2)
         self.relu2 = nn.ReLU()
-        self.fc3 = nn.Linear(hidden_size, num_classes)
+        self.fc3 = nn.Linear(hidden_size // 2, num_classes)
         
     def forward(self, x):
         out = self.fc1(x)
@@ -27,8 +27,15 @@ class AvalancheNN(nn.Module):
         return out
 
 def load_data():
-    X_train = pd.read_csv(SPLITS_DIR / "X_train.csv").values
-    X_test = pd.read_csv(SPLITS_DIR / "X_test.csv").values
+    from sklearn.preprocessing import StandardScaler
+    
+    X_train_raw = pd.read_csv(SPLITS_DIR / "X_train.csv").values
+    X_test_raw = pd.read_csv(SPLITS_DIR / "X_test.csv").values
+    
+    # Scale features
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train_raw)
+    X_test = scaler.transform(X_test_raw)
     
     # Labels are 1, 2, 3 so we subtract 1 to get 0, 1, 2 for PyTorch CrossEntropyLoss
     y_train = pd.read_csv(SPLITS_DIR / "y_train.csv").squeeze("columns").values - 1
@@ -54,11 +61,11 @@ def main():
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     
     # Initialize model, loss, and optimizer
-    model = AvalancheNN(input_size=3, hidden_size=16, num_classes=3)
+    model = AvalancheNN(input_size=3, hidden_size=64, num_classes=3)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.01)
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
     
-    epochs = 100
+    epochs = 200
     print(f"Training model for {epochs} epochs...")
     
     # Training Loop
