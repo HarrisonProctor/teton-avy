@@ -13,13 +13,13 @@ output_dir = script_dir / ".." / ".." / "figures"
 output_dir.mkdir(exist_ok=True)
 
 class AvalancheNN(nn.Module):
-    def __init__(self, input_size=3, hidden_size=16, num_classes=3):
+    def __init__(self, input_size=3, hidden_size=64, num_classes=3):
         super(AvalancheNN, self).__init__()
         self.fc1 = nn.Linear(input_size, hidden_size)
         self.relu1 = nn.ReLU()
-        self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, hidden_size // 2)
         self.relu2 = nn.ReLU()
-        self.fc3 = nn.Linear(hidden_size, num_classes)
+        self.fc3 = nn.Linear(hidden_size // 2, num_classes)
         
     def forward(self, x):
         out = self.fc1(x)
@@ -61,20 +61,26 @@ def main():
     y_train = pd.read_csv(splits_dir / "y_train.csv").squeeze("columns")
     y_test = pd.read_csv(splits_dir / "y_test.csv").squeeze("columns")
 
+    # Scale features like in train_nn.py
+    from sklearn.preprocessing import StandardScaler
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train.values)
+    X_test_scaled = scaler.transform(X_test.values)
+
     # Labels for PyTorch (0-indexed)
     y_train_pt = torch.tensor(y_train.values - 1, dtype=torch.long)
-    X_train_pt = torch.tensor(X_train.values, dtype=torch.float32)
-    X_test_pt = torch.tensor(X_test.values, dtype=torch.float32)
+    X_train_pt = torch.tensor(X_train_scaled, dtype=torch.float32)
+    X_test_pt = torch.tensor(X_test_scaled, dtype=torch.float32)
 
     # Train the NN quickly
     train_dataset = TensorDataset(X_train_pt, y_train_pt)
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     
-    model = AvalancheNN(input_size=3, hidden_size=16, num_classes=3)
+    model = AvalancheNN(input_size=3, hidden_size=64, num_classes=3)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.01)
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
     
-    epochs = 100
+    epochs = 200
     print("Training NN for plots...")
     for epoch in range(epochs):
         model.train()
@@ -101,7 +107,27 @@ def main():
     fig.tight_layout()
     fig.savefig(output_dir / "nn_predictions_3d.png", dpi=200)
     
-    print(f"NN figure saved to {output_dir.resolve()}\\nn_predictions_3d.png")
+    # Feature Importance (Proxy using first layer absolute weights)
+    fig2, ax2 = plt.subplots(figsize=(8, 4))
+    fc1_weights = model.fc1.weight.data.numpy()
+    nn_importances = np.mean(np.abs(fc1_weights), axis=0)
+    nn_importances = nn_importances / np.sum(nn_importances) # Normalize to 1.0
+    
+    names = ["Morning Temp", "3-Day Snowfall", "Wind Speed"]
+    idx_nn = np.argsort(nn_importances)[::-1]
+    bars_nn = ax2.bar([names[i] for i in idx_nn], [nn_importances[i] for i in idx_nn],
+                   color=["#e74c3c", "#f39c12", "#2ecc71"], edgecolor="k", linewidth=0.5)
+    for bar, val in zip(bars_nn, [nn_importances[i] for i in idx_nn]):
+        ax2.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01,
+                 f"{val*100:.1f}%", ha="center", fontsize=11, fontweight="bold")
+    ax2.set_ylabel("Importance (Normalized)")
+    # ax2.set_title("Neural Network Feature Importance", fontsize=12, pad=10) # No title as requested
+    ax2.set_ylim(0, max(nn_importances) + 0.08)
+    ax2.grid(True, axis="y", alpha=0.3)
+    fig2.tight_layout()
+    fig2.savefig(output_dir / "nn_feature_importance.png", dpi=200)
+    
+    print(f"NN figures saved to {output_dir.resolve()}")
 
 if __name__ == "__main__":
     main()
