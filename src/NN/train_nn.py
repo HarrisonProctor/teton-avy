@@ -51,21 +51,23 @@ def load_data():
 
 def main():
     # Set random seed for reproducibility
-    torch.manual_seed(47)
+    torch.manual_seed(20)
     
     print("Loading data...")
     X_train, y_train, X_test, y_test = load_data()
     
-    # Create DataLoaders
+    # Create DataLoaders with deterministic generator
+    g = torch.Generator()
+    g.manual_seed(20)
     train_dataset = TensorDataset(X_train, y_train)
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, generator=g)
     
     # Initialize model, loss, and optimizer
     model = AvalancheNN(input_size=3, hidden_size=64, num_classes=3)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     
-    epochs = 200
+    epochs = 100
     print(f"Training model for {epochs} epochs...")
     
     # Training Loop

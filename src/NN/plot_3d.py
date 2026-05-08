@@ -54,7 +54,7 @@ def plot_3d(ax, X, y, title):
     # ax.set_title(title, fontsize=12, pad=10)
 
 def main():
-    torch.manual_seed(47)
+    torch.manual_seed(20)
 
     X_train = pd.read_csv(splits_dir / "X_train.csv")
     X_test = pd.read_csv(splits_dir / "X_test.csv")
@@ -73,14 +73,16 @@ def main():
     X_test_pt = torch.tensor(X_test_scaled, dtype=torch.float32)
 
     # Train the NN quickly
+    g = torch.Generator()
+    g.manual_seed(20)
     train_dataset = TensorDataset(X_train_pt, y_train_pt)
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, generator=g)
     
     model = AvalancheNN(input_size=3, hidden_size=64, num_classes=3)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     
-    epochs = 200
+    epochs = 100
     print("Training NN for plots...")
     for epoch in range(epochs):
         model.train()
