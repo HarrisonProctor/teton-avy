@@ -38,7 +38,7 @@ def plot_3d(ax, X, y, title):
     ax.set_xlabel("Morning Temp (°F)")
     ax.set_ylabel("3-Day Snowfall (in)")
     ax.set_zlabel("Wind Speed (mph)")
-    ax.set_title(title, fontweight="bold")
+    # ax.set_title(title, fontweight="bold")
     ax.legend(fontsize=8)
 
 datasets = [

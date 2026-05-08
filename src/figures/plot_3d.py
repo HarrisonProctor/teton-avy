@@ -48,7 +48,7 @@ def plot_3d(ax, X, y, title):
     ax.invert_xaxis()
     ax.invert_yaxis()
     ax.legend(fontsize=8, loc="upper left")
-    ax.set_title(title, fontsize=12, pad=10)
+    # ax.set_title(title, fontsize=12, pad=10)
 
 fig1 = plt.figure(figsize=(8, 6))
 ax1 = fig1.add_subplot(111, projection="3d")
@@ -69,6 +69,7 @@ fig3.tight_layout()
 fig3.savefig(output_dir / "lr_predictions_3d.png", dpi=200)
 
 fig4, ax4 = plt.subplots(figsize=(8, 4))
+# ax4.set_title("Random Forest Feature Importance", fontsize=12, pad=10)
 importances = rf.feature_importances_
 names = ["Morning Temp", "3-Day Snowfall", "Wind Speed"]
 idx = np.argsort(importances)[::-1]
@@ -82,6 +83,23 @@ ax4.set_ylabel("Importance")
 ax4.set_ylim(0, max(importances) + 0.08)
 ax4.grid(True, axis="y", alpha=0.3)
 fig4.tight_layout()
-fig4.savefig(output_dir / "feature_importance.png", dpi=200)
+fig4.savefig(output_dir / "rf_feature_importance.png", dpi=200)
+
+fig5, ax5 = plt.subplots(figsize=(8, 4))
+# For Logistic Regression, we can use the mean absolute coefficients as importance
+lr_importances = np.mean(np.abs(lr.coef_), axis=0)
+lr_importances = lr_importances / np.sum(lr_importances) # Normalize to 1.0
+idx_lr = np.argsort(lr_importances)[::-1]
+bars_lr = ax5.bar([names[i] for i in idx_lr], [lr_importances[i] for i in idx_lr],
+               color=["#e74c3c", "#f39c12", "#2ecc71"], edgecolor="k", linewidth=0.5)
+for bar, val in zip(bars_lr, [lr_importances[i] for i in idx_lr]):
+    ax5.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01,
+             f"{val*100:.1f}%", ha="center", fontsize=11, fontweight="bold")
+ax5.set_ylabel("Importance (Normalized)")
+# ax5.set_title("Logistic Regression Feature Importance", fontsize=12, pad=10)
+ax5.set_ylim(0, max(lr_importances) + 0.08)
+ax5.grid(True, axis="y", alpha=0.3)
+fig5.tight_layout()
+fig5.savefig(output_dir / "lr_feature_importance.png", dpi=200)
 
 print("All figures saved to /figures.")

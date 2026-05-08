@@ -51,7 +51,7 @@ def plot_3d(ax, X, y, title):
     ax.invert_xaxis()
     ax.invert_yaxis()
     ax.legend(fontsize=8, loc="upper left")
-    ax.set_title(title, fontsize=12, pad=10)
+    # ax.set_title(title, fontsize=12, pad=10)
 
 def main():
     torch.manual_seed(47)
